@@ -5,10 +5,12 @@ from PIL import Image
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 import io
-
+import time
 
 def folder_to_keys(folder, enable_text=True, enable_image=True, enable_metadata=False):
     """returns a list of keys from a folder of images and text"""
+    start = time.perf_counter()
+    print("folder_to_keys", "start")
     path = Path(folder)
     text_files = None
     metadata_files = None
@@ -38,11 +40,12 @@ def folder_to_keys(folder, enable_text=True, enable_image=True, enable_metadata=
         keys = join(metadata_files.keys())
 
     keys = list(sorted(keys))
-
+    print("folder_to_keys", "end", time.perf_counter() - start)
     return keys, text_files, image_files, metadata_files
 
 
 def get_image_dataset():
+    print("get_image_dataset")
     """retrieve image dataset module without importing torch at the top level"""
 
     from torch.utils.data import Dataset  # pylint: disable=import-outside-toplevel
@@ -78,7 +81,7 @@ def get_image_dataset():
                 self.image_transform = preprocess
             if self.enable_metadata:
                 self.metadata_files = {k: v for k, v in metadata_files.items() if k in keys_set}
-
+            
         def __len__(self):
             return len(self.keys)
 
@@ -123,7 +126,8 @@ def create_webdataset(
     """Create a WebDataset reader, it can read a webdataset of image, text and json"""
     import clip  # pylint: disable=import-outside-toplevel
     import webdataset as wds  # pylint: disable=import-outside-toplevel
-
+    start = time.perf_counter()
+    print("create_webdataset", "start")
     urls = input_sampler(urls)
 
     dataset = wds.WebDataset(urls, cache_dir=cache_path, cache_size=10**10, handler=wds.handlers.warn_and_continue)
@@ -163,12 +167,14 @@ def create_webdataset(
         return output
 
     transformed_dataset = filtered_dataset.map(preprocess_dataset, handler=wds.handlers.warn_and_continue)
+    print("create_webdataset", "end", time.perf_counter() - start)
     return transformed_dataset
 
 
 def dataset_to_dataloader(dataset, batch_size, num_prepro_workers, input_format):
     """Create a pytorch dataloader from a dataset"""
-
+    start = time.perf_counter()
+    print("dataset_to_dataloader", "start")
     def collate_fn(batch):
         batch = list(filter(lambda x: x is not None, batch))
         return default_collate(batch)
@@ -182,6 +188,7 @@ def dataset_to_dataloader(dataset, batch_size, num_prepro_workers, input_format)
         prefetch_factor=2,
         collate_fn=collate_fn if input_format == "files" else None,
     )
+    print("dataset_to_dataloader", "end", time.perf_counter() - start)
     return data
 
 
@@ -226,6 +233,8 @@ class WebdatasetReader:
         cache_path=None,
     ):
         self.batch_size = batch_size
+        start = time.perf_counter()
+        print("WebdatasetReader", "start")
         dataset = create_webdataset(
             input_dataset,
             preprocess,
@@ -238,6 +247,7 @@ class WebdatasetReader:
             input_sampler=sampler,
         )
         self.dataloader = dataset_to_dataloader(dataset, batch_size, num_prepro_workers, "webdataset")
+        print("WebdatasetReader", "end", time.perf_counter() - start)
 
     def __iter__(self):
         for batch in self.dataloader:
