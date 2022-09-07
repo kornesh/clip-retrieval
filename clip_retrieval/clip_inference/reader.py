@@ -185,7 +185,7 @@ def dataset_to_dataloader(dataset, batch_size, num_prepro_workers, input_format)
         shuffle=False,
         num_workers=num_prepro_workers,
         pin_memory=True,
-        prefetch_factor=8,
+        prefetch_factor=2,
         persistent_workers=True,
         collate_fn=collate_fn if input_format == "files" else None,
     )
