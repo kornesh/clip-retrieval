@@ -827,7 +827,7 @@ def dict_to_clip_options(d, clip_options):
 def load_clip(clip_model="ViT-B/32", use_jit=True, device="cpu"):
     import clip  # pylint: disable=import-outside-toplevel
 
-    model, preprocess = clip.load(clip_model, device=device, jit=use_jit, download_root="/data/.cache/clip")
+    model, preprocess = clip.load(clip_model, device=device, jit=use_jit)
     return model, preprocess
 
 
