@@ -653,7 +653,7 @@ def get_cache_folder(clip_model):
     """get cache folder for given clip model"""
     from os.path import expanduser  # pylint: disable=import-outside-toplevel
 
-    home = expanduser("~")
+    home = "/data"
 
     cache_folder = home + "/.cache/clip_retrieval/" + clip_model.replace("/", "_")
 
