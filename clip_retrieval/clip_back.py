@@ -964,7 +964,7 @@ def clip_back(
     """main entry point of clip back, start the endpoints"""
     print("starting boot of clip back")
     if columns_to_return is None:
-        columns_to_return = ["url", "image_path", "caption", "NSFW"]
+        columns_to_return = ["url", "image_path", "caption"] # , "NSFW"
     clip_resources = load_clip_indices(
         indices_paths=indices_paths,
         clip_options=ClipOptions(
